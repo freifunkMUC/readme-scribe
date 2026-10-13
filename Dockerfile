@@ -1,0 +1,20 @@
+# markscribe (github.com/muesli/markscribe), built from source with a
+# current Go toolchain. Its last release, v0.6.0, is from 2021; the commit
+# below is the head of its master branch.
+FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build
+
+ARG MARKSCRIBE_COMMIT=d838b6e71dc673e8a3ef248b0e75fbd44ce8cc4c
+ARG TARGETOS
+ARG TARGETARCH
+
+# A cross-compiled binary lands in a subdirectory of /go/bin.
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+      go install -trimpath -ldflags="-s -w" github.com/muesli/markscribe@${MARKSCRIBE_COMMIT} && \
+    find /go/bin -name markscribe -exec cp {} /markscribe \;
+
+# Root, as GitHub requires of a container action: it writes into the
+# workspace of the job, which belongs to the runner's user.
+FROM gcr.io/distroless/static-debian13:latest@sha256:58133991db06659feaabe0f4e97a35cebf15ef4ea08f8a4c6d2ee5f75e4aa6a0
+
+COPY --from=build /markscribe /markscribe
+ENTRYPOINT ["/markscribe"]
