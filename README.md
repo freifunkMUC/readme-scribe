@@ -1,73 +1,57 @@
 # readme-scribe
 
-A GitHub Action that automatically generates & updates markdown content (like your README.md)
+A GitHub Action that generates and updates markdown content, such as the README of a profile, from a [markscribe](https://github.com/muesli/markscribe) template.
 
-## Instructions
+This is a fork of [muesli/readme-scribe](https://github.com/muesli/readme-scribe), whose only release is from 2020 and runs an unpinned image from 2021. The fork builds markscribe from source with a current Go toolchain and publishes the image the action runs as `ghcr.io/freifunkmuc/readme-scribe`, one version per release. markscribe itself is unchanged: the head of its `master` branch, with the dependencies upstream last set in 2023.
 
-1. Create a [markscribe](https://github.com/muesli/markscribe) template and
-place it anywhere in a repository that you automatically want to update. In this
-guide we will use `templates/README.md.tpl`.
+## Usage
 
-You can find an example template that I use to automatically update my GitHub
-profile here: https://github.com/muesli/markscribe/blob/master/templates/github-profile.tpl
+1. Write a markscribe template and put it into the repository to update, for example as `templates/README.md.tpl`. Upstream has an [example for a profile](https://github.com/muesli/markscribe/blob/master/templates/github-profile.tpl).
 
-2. In order to access some of GitHub's API, you need to provide a valid GitHub
-token as a secret called `PERSONAL_GITHUB_TOKEN`. You can create a new token by
-going to your profile settings:
+2. Most template functions call the GitHub API and need a personal access token, stored as the secret `PERSONAL_GITHUB_TOKEN`. The full set of functions needs the scopes `read:user`, `repo:status`, `public_repo` and `read:org`; the [markscribe documentation](https://github.com/muesli/markscribe) lists the scopes per function.
 
-`Developer settings` > `Personal access tokens` > `Generate new token`
-
-Depending on your template you will need access to different API scopes. If you
-want to support the full set of features, tick the checkboxes next to these
-scopes: `read:user`, `repo:status`, `public_repo`, `read:org`. Check out the
-[markscribe](https://github.com/muesli/markscribe) documentation for a detailed
-list of required scopes for each individual template function.
-
-Now create a new secret in your repository's `Settings` and enter that token.
-
-3. Create a new GitHub workflow in your repository: `.github/workflows/readme-scribe.yml`
+3. Add a workflow, for example `.github/workflows/readme-scribe.yml`:
 
 ```yml
 name: Update README
 
 on:
-  push:
   schedule:
-    - cron: "0 */1 * * *"
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   markscribe:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v7
 
-      - uses: muesli/readme-scribe@master
+      - uses: freifunkMUC/readme-scribe@v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
         with:
           template: "templates/README.md.tpl"
           writeTo: "README.md"
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: Update generated README
-          branch: main
-          commit_user_name: readme-scribe 🤖
-          commit_user_email: actions@github.com
-          commit_author: readme-scribe 🤖 <actions@github.com>
+          commit_message: "docs: update generated README [skip ci]"
+          file_pattern: README.md
 ```
 
-Careful: if you use `master` instead of `main` as the default branch, you will
-need to update the above config for `git-auto-commit-action` accordingly.
+The last step commits the README only when it changed.
 
-This action will be triggered once per hour, parses `templates/README.md.tpl`
-and generates a new `README.md` for you, and eventually pushes the changes to
-the `master` branch. Make sure to adjust the input values `template` and
-`writeTo` to suit your needs.
+## Inputs
 
-## Example output
+| Name | Default | |
+|---|---|---|
+| `template` | `README.md.tpl` | The template to render. |
+| `writeTo` | `README.md` | The file to write. |
 
-![readme-scribe example output](https://github.com/muesli/readme-scribe/raw/master/assets/template_example.png)
+## Releasing
+
+Raise the image version in `action.yml`, merge, then push a tag `v<version>` on that commit. The workflow `Image` checks that the tag and `action.yml` agree and publishes `ghcr.io/freifunkmuc/readme-scribe:<version>` for amd64 and arm64.

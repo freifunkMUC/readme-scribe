@@ -19,7 +19,9 @@ outputs:
 
 runs:
   using: "docker"
-  image: "docker://fribbledom/markscribe"
+  # Built from the Dockerfile here by the release of the same version
+  # (.github/workflows/image.yml).
+  image: "docker://ghcr.io/freifunkmuc/readme-scribe:1.0.0"
   args:
     - "-write"
     - ${{ inputs.writeTo }}
