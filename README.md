@@ -2,7 +2,7 @@
 
 A GitHub Action that generates and updates markdown content, such as the README of a profile, from a [markscribe](https://github.com/muesli/markscribe) template.
 
-This is a fork of [muesli/readme-scribe](https://github.com/muesli/readme-scribe), whose only release is from 2020 and runs an unpinned image from 2021. The fork builds markscribe from source with a current Go toolchain and publishes the image the action runs as `ghcr.io/freifunkmuc/readme-scribe`, one version per release. markscribe comes from [freifunkMUC/markscribe](https://github.com/freifunkMUC/markscribe), a fork with current dependencies and otherwise unchanged code.
+This is a fork of [muesli/readme-scribe](https://github.com/muesli/readme-scribe), whose only release is from 2020 and runs an unpinned image from 2021. The fork builds markscribe from source with a current Go toolchain and publishes the image the action runs as `ghcr.io/freifunkmuc/readme-scribe`, one version per release. markscribe comes from [freifunkMUC/markscribe](https://github.com/freifunkMUC/markscribe), a fork with current dependencies and fixes from upstream's backlog (GraphQL resource limits, pagination, releases, archived repositories, RSS fields, `truncate`).
 
 ## Usage
 
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: freifunkMUC/readme-scribe@v1.1.0
+      - uses: freifunkMUC/readme-scribe@v1.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
         with:

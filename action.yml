@@ -21,7 +21,7 @@ runs:
   using: "docker"
   # Built from the Dockerfile here by the release of the same version
   # (.github/workflows/image.yml).
-  image: "docker://ghcr.io/freifunkmuc/readme-scribe:1.1.0"
+  image: "docker://ghcr.io/freifunkmuc/readme-scribe:1.2.0"
   args:
     - "-write"
     - ${{ inputs.writeTo }}

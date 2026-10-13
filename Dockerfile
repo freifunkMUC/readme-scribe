@@ -3,7 +3,7 @@
 # current; upstream's last release, v0.6.0, is from 2021.
 FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build
 
-ARG MARKSCRIBE_COMMIT=21d9a8a9dc4823c8d362d6ba2e8a761856c431c4
+ARG MARKSCRIBE_COMMIT=cda6c5523821760057e94ee8a1ef77ffce8fc6c5
 ARG TARGETOS
 ARG TARGETARCH
 
